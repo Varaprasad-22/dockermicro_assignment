@@ -1,5 +1,6 @@
 package com.auth.repository;
 
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.auth.model.User;
