@@ -1,6 +1,8 @@
 package com.auth.controller;
 import org.springframework.web.bind.annotation.*;
 
+import com.auth.dto.LoginRequest;
+import com.auth.dto.RegisterRequest;
 import com.auth.service.UserService;
 import com.auth.util.JwtUtil;
 

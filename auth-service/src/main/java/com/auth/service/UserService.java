@@ -2,6 +2,7 @@ package com.auth.service;
 
 import org.springframework.stereotype.Service;
 
+import com.auth.dto.RegisterRequest;
 import com.auth.model.User;
 import com.auth.repository.UserRepository;
 
