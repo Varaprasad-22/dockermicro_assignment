@@ -45,6 +45,9 @@
   <!-- other modules -->
   <module>eurekas</module>
   <module>api-gateways</module>
+  <module>booking-system</module>
+  <module>flightbookingsystem</module>
+  <module>configserver</module>
   </modules>
   <build>
         <plugins>

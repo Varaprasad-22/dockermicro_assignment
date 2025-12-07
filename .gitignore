@@ -1,7 +1,16 @@
+<<<<<<< HEAD
+=======
+HELP.md
+>>>>>>> 9b411bf801dc05b7b34fa18b81a3ce5504269bbf
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+<<<<<<< HEAD
+=======
+
+### STS ###
+>>>>>>> 9b411bf801dc05b7b34fa18b81a3ce5504269bbf
 .apt_generated
 .classpath
 .factorypath
@@ -10,3 +19,24 @@ target/
 .springBeans
 .sts4-cache
 
+<<<<<<< HEAD
+=======
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+>>>>>>> 9b411bf801dc05b7b34fa18b81a3ce5504269bbf
