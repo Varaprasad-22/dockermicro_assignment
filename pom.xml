@@ -48,6 +48,7 @@
   <module>booking-system</module>
   <module>flightbookingsystem</module>
   <module>configserver</module>
+  <module>auth-service</module>
   </modules>
   <build>
         <plugins>
