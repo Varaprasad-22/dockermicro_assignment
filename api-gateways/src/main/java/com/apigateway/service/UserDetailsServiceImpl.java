@@ -13,9 +13,11 @@ import reactor.core.scheduler.Schedulers;
 
 @Service
 public class UserDetailsServiceImpl implements ReactiveUserDetailsService {
-    @Autowired
-   private UserRepository userRepository;
+	private final UserRepository userRepository;
 
+    public UserDetailsServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
     @Override
     public Mono<UserDetails> findByUsername(String username) {
         return Mono.fromCallable(() -> {

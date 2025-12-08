@@ -19,7 +19,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private ERole name;
-    protected Role() { }
+    public Role() { }
 
     public Integer getId() {
 		return id;

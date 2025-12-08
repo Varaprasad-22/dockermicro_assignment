@@ -28,85 +28,77 @@ import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
+	private final UserRepository userRepository;
+	private final RoleRepository roleRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtUtils jwtUtils;
+	private final ReactiveAuthenticationManager authenticationManager;
 
-    @Autowired
-    private UserRepository userRepository;
+	public AuthService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
+			JwtUtils jwtUtils, ReactiveAuthenticationManager authenticationManager) {
+		this.userRepository = userRepository;
+		this.roleRepository = roleRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.jwtUtils = jwtUtils;
+		this.authenticationManager = authenticationManager;
+	}
 
-    @Autowired
-    private RoleRepository roleRepository;
+	public Mono<MessageResponse> register(SignUpRequest signUpRequest) {
+		return Mono.fromCallable(() -> {
+			if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+				return new MessageResponse("Error: Username is already taken!");
+			}
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+			if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+				return new MessageResponse("Error: Email is already in use!");
+			}
 
-    @Autowired
-    private JwtUtils jwtUtils;
+			// Create new user's account
+			User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(),
+					passwordEncoder.encode(signUpRequest.getPassword()));
 
-    @Autowired
-    private ReactiveAuthenticationManager authenticationManager;
+			Set<String> strRoles = signUpRequest.getRole();
+			Set<Role> roles = new HashSet<>();
 
-    public Mono<MessageResponse> register(SignUpRequest signUpRequest) {
-        return Mono.fromCallable(() -> {
-            if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-                return new MessageResponse("Error: Username is already taken!");
-            }
+			if (strRoles == null || strRoles.isEmpty()) {
+				Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				roles.add(userRole);
+			} else {
+				strRoles.forEach(role -> {
+					switch (role.toLowerCase()) {
+					case "admin":
+						Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+						roles.add(adminRole);
+						break;
+					default:
+						Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+						roles.add(userRole);
+					}
+				});
+			}
 
-            if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-                return new MessageResponse("Error: Email is already in use!");
-            }
+			user.setRoles(roles);
+			userRepository.save(user);
 
-            // Create new user's account
-            User user = new User(signUpRequest.getUsername(),
-                    signUpRequest.getEmail(),
-                    passwordEncoder.encode(signUpRequest.getPassword()));
+			return new MessageResponse("User registered successfully!");
+		}).subscribeOn(Schedulers.boundedElastic());
+	}
 
-            Set<String> strRoles = signUpRequest.getRole();
-            Set<Role> roles = new HashSet<>();
+	public Mono<JwtResponse> authenticate(LoginRequest loginRequest) {
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+				loginRequest.getUsername(), loginRequest.getPassword());
 
-            if (strRoles == null || strRoles.isEmpty()) {
-                Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                roles.add(userRole);
-            } else {
-                strRoles.forEach(role -> {
-                    switch (role.toLowerCase()) {
-                        case "admin":
-                            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                            roles.add(adminRole);
-                            break;
-                        default:
-                            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                            roles.add(userRole);
-                    }
-                });
-            }
+		return authenticationManager.authenticate(authenticationToken).flatMap(authentication -> {
+			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+			String jwt = jwtUtils.generateTokenFromUserDetails(userDetails);
+			List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+					.collect(Collectors.toList());
 
-            user.setRoles(roles);
-            userRepository.save(user);
-
-            return new MessageResponse("User registered successfully!");
-        }).subscribeOn(Schedulers.boundedElastic());
-    }
-
-    public Mono<JwtResponse> authenticate(LoginRequest loginRequest) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
-
-        return authenticationManager.authenticate(authenticationToken)
-                .flatMap(authentication -> {
-                    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-                    String jwt = jwtUtils.generateTokenFromUserDetails(userDetails);
-                    List<String> roles = userDetails.getAuthorities().stream()
-                            .map(GrantedAuthority::getAuthority)
-                            .collect(Collectors.toList());
-
-                    return Mono.just(new JwtResponse(jwt,
-                            userDetails.getId(),
-                            userDetails.getUsername(),
-                            userDetails.getEmail(),
-                            roles));
-                });
-    }
+			return Mono.just(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
+					userDetails.getEmail(), roles));
+		});
+	}
 }
-

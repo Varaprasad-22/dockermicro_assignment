@@ -21,10 +21,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
- 
-	@Autowired
-    private  AuthService authService;
+    private final AuthService authService;
 
+	public AuthController(AuthService authService) {
+		this.authService=authService;
+	}
     @PostMapping("/signin")
     public Mono<ResponseEntity<?>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         return authService.authenticate(loginRequest)
@@ -42,7 +43,9 @@ public class AuthController {
                     if (messageResponse.getMessage().contains("Error")) {
                         return ResponseEntity.badRequest().body(messageResponse);
                     }
-                    return ResponseEntity.ok(messageResponse);
+                    return (ResponseEntity<?>) ResponseEntity
+                            .status(HttpStatus.CREATED)
+                            .body(messageResponse);
                 });
     }
 
