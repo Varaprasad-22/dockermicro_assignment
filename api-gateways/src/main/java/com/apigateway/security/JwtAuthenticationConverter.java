@@ -3,7 +3,6 @@ package com.apigateway.security;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,8 +16,10 @@ import reactor.core.publisher.Mono;
 @Component
 public class JwtAuthenticationConverter implements ServerAuthenticationConverter {
 
-    @Autowired
     private JwtUtils jwtUtils;
+    public JwtAuthenticationConverter(JwtUtils jwt) {
+    	this.jwtUtils=jwt;
+    }
     
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";

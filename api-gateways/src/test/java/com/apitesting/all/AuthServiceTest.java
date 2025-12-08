@@ -60,8 +60,8 @@ class AuthServiceTest {
         req.setPassword("plain");
         req.setRole(Set.of()); // empty -> default ROLE_USER
 
-        when(userRepository.existsByUsername(eq("newuser"))).thenReturn(false);
-        when(userRepository.existsByEmail(eq("newuser@example.com"))).thenReturn(false);
+        when(userRepository.existsByUsername(("newuser"))).thenReturn(false);
+        when(userRepository.existsByEmail(("newuser@example.com"))).thenReturn(false);
 
         Role userRole = new Role();
         userRole.setId((int) 2L);
