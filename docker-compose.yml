@@ -43,8 +43,8 @@ services:
 
   eureka-server:
     build:
-      context: ./eurekas
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /eurekas/Dockerfile
     container_name: eureka-server
     ports:
       - "8761:8761"
@@ -57,8 +57,8 @@ services:
 
   config-server:
     build:
-      context: ./configserver
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /configserver/Dockerfile
     container_name: config-server
     ports:
       - "8888:8888"
@@ -71,8 +71,8 @@ services:
 
   flight-service:
     build:
-      context: ./flightbookingsystem
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /flightbookingsystem/Dockerfile
     container_name: flight-service
     ports:
       - "8210:8210"
@@ -89,8 +89,8 @@ services:
 
   booking-service:
     build:
-      context: ./booking-system
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /booking-system/Dockerfile
     container_name: booking-service
     ports:
       - "8211:8211"
@@ -111,8 +111,8 @@ services:
 
   api-gateway:
     build:
-      context: ./api-gateways
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /api-gateways/Dockerfile
     container_name: api-gateway
     ports:
       - "8212:8212"
