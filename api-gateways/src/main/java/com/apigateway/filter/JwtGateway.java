@@ -1,8 +1,11 @@
+// File: src/main/java/com/apigateway/filter/JwtGateway.java
 package com.apigateway.filter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
@@ -15,7 +18,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-
+import io.jsonwebtoken.io.Decoders;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -29,7 +32,6 @@ public class JwtGateway implements GlobalFilter {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    // You can set allowed open paths
     private final List<String> openPaths = List.of("/api/auth/", "/actuator", "/api/public/");
 
     @Override
@@ -64,7 +66,6 @@ public class JwtGateway implements GlobalFilter {
                     return exchange.getResponse().setComplete();
                 }
 
-                // Optionally forward user info to downstream services via headers
                 String username = claims.getSubject();
                 Object rolesObj = claims.get("roles");
                 String roles = (rolesObj != null) ? rolesObj.toString() : "";
@@ -85,8 +86,17 @@ public class JwtGateway implements GlobalFilter {
 
     private Claims parseClaims(String token) {
         try {
-            return Jwts.parser()
-                       .setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8))
+            byte[] keyBytes;
+            try {
+                keyBytes = Decoders.BASE64.decode(jwtSecret);
+            } catch (Exception ex) {
+                keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+            }
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
+
+            return Jwts.parserBuilder()
+                       .setSigningKey(secretKey)
+                       .build()
                        .parseClaimsJws(token)
                        .getBody();
         } catch (Exception ex) {
