@@ -28,9 +28,9 @@ public class UserService {
         // map requestedRole -> ROLE_USER or ROLE_ADMIN
         String rr = req.getRequestedRole();
         if (rr != null && rr.equalsIgnoreCase("admin")) {
-            u.setRoles(Set.of("ROLE_ADMIN", "ROLE_USER")); // admin usually also has user perms
+        	 u.setRoles(Set.of("ADMIN","USER"));  // admin usually also has user perms
         } else {
-            u.setRoles(Set.of("ROLE_USER"));
+        	 u.setRoles(Set.of("USER"));
         }
 
         repo.save(u);

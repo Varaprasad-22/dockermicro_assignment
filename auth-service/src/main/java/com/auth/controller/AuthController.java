@@ -55,7 +55,7 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+        		.header("Set-Cookie", cookie.toString())
             .body(Map.of("message", "login successful"));
     }
 
@@ -70,7 +70,7 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+        		.header("Set-Cookie", cookie.toString())
                 .body(Map.of("message", "logged out"));
     }
 }
