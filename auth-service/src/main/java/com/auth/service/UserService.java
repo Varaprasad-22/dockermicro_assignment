@@ -8,7 +8,6 @@ import com.auth.repository.UserRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
 import java.util.Set;
 
 @Service
@@ -25,7 +24,15 @@ public class UserService {
         User u = new User();
         u.setUsername(req.getUsername());
         u.setPassword(encoder.encode(req.getPassword()));
-        u.setRoles(Set.of("ROLE_USER"));
+
+        // map requestedRole -> ROLE_USER or ROLE_ADMIN
+        String rr = req.getRequestedRole();
+        if (rr != null && rr.equalsIgnoreCase("admin")) {
+            u.setRoles(Set.of("ROLE_ADMIN", "ROLE_USER")); // admin usually also has user perms
+        } else {
+            u.setRoles(Set.of("ROLE_USER"));
+        }
+
         repo.save(u);
     }
 

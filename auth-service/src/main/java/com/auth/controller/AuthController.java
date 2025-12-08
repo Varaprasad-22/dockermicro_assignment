@@ -6,13 +6,14 @@ import com.auth.dto.RegisterRequest;
 import com.auth.service.UserService;
 import com.auth.util.JwtUtil;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 
-
+import java.net.http.HttpHeaders;
 import java.util.Map;
 
 @RestController
@@ -21,7 +22,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authManager;
     private final JwtUtil jwtUtil;
-
+    private static final String COOKIE_NAME = "AUTH_TOKEN";
     public AuthController(UserService userService, AuthenticationManager authManager, JwtUtil jwtUtil) {
         this.userService = userService;
         this.authManager = authManager;
@@ -38,9 +39,38 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest req) {
-        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        Authentication auth = authManager.authenticate(
+            new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
+        );
         String token = jwtUtil.generateToken(auth);
-        return ResponseEntity.ok(Map.of("token", token));
+        long maxAge = jwtUtil.getValidityMs() / 1000;
+
+        ResponseCookie cookie = ResponseCookie.from(COOKIE_NAME, token)
+                .httpOnly(true)
+                .secure(false) // set true in production with HTTPS
+                .path("/")
+                .maxAge(maxAge)
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(Map.of("message", "login successful"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        ResponseCookie cookie = ResponseCookie.from(COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "logged out"));
     }
 }

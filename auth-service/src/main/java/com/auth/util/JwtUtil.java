@@ -1,5 +1,6 @@
 package com.auth.util;
 
+import java.security.Key;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
@@ -19,6 +22,9 @@ public class JwtUtil {
 
     @Value("${jwt.expiration-ms}")
     private long validityMs;
+    private Key key() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+      }
 
     public String generateToken(Authentication auth) {
         String username = auth.getName();
@@ -31,7 +37,8 @@ public class JwtUtil {
             .claim("roles", roles)
             .setIssuedAt(now)
             .setExpiration(exp)
-            .signWith(SignatureAlgorithm.HS256, secret.getBytes())
+            .signWith(key(),SignatureAlgorithm.HS256)
             .compact();
     }
+    public long getValidityMs() { return validityMs; }
 }
