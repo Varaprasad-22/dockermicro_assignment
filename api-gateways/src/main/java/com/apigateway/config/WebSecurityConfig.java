@@ -26,8 +26,8 @@ import reactor.core.publisher.Mono;
 @EnableReactiveMethodSecurity
 public class WebSecurityConfig {
 
-	private final String role_admin="ROLE_ADMIN";
-	private final String role_user="ROLE_USER";
+	private static final String ROLE_ADMIN="ROLE_ADMIN";
+	private static final String ROLE_USER="ROLE_USER";
     private final ReactiveAuthenticationEntryPoint unauthorizedHandler;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
     private final ReactiveUserDetailsService userDetailsService;
@@ -101,14 +101,14 @@ public class WebSecurityConfig {
 
                          // Protected endpoints - require authentication with specific roles
                          // Flight inventory operations -> ADMIN only
-                         .pathMatchers("/api/flights/airline/inventory").hasAnyAuthority(role_admin)
-                         .pathMatchers("/api/flights/inventory/updateSeats").hasAnyAuthority(role_admin)
+                         .pathMatchers("/api/flights/airline/inventory").hasAnyAuthority(ROLE_ADMIN)
+                         .pathMatchers("/api/flights/inventory/updateSeats").hasAnyAuthority(ROLE_ADMIN)
 
                          // Booking & ticket operations -> USER or ADMIN
-                         .pathMatchers("/api/flight/booking/**").hasAnyAuthority("role_user", role_admin)
-                         .pathMatchers("/api/flight/ticket/**").hasAnyAuthority("role_user", role_admin)
-                         .pathMatchers("/api/flight/booking/history/**").hasAnyAuthority("role_user", role_admin)
-                         .pathMatchers("/api/flight/booking/cancel/**").hasAnyAuthority("role_user", role_admin)
+                         .pathMatchers("/api/flight/booking/**").hasAnyAuthority(ROLE_USER, ROLE_ADMIN)
+                         .pathMatchers("/api/flight/ticket/**").hasAnyAuthority(ROLE_USER, ROLE_ADMIN)
+                         .pathMatchers("/api/flight/booking/history/**").hasAnyAuthority(ROLE_USER, ROLE_ADMIN)
+                         .pathMatchers("/api/flight/booking/cancel/**").hasAnyAuthority(ROLE_USER, ROLE_ADMIN)
                 		
                 		.anyExchange().permitAll()
                 )

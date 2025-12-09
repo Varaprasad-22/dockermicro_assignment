@@ -66,7 +66,7 @@ public class JwtUtils {
     public String generateTokenFromUserDetails(UserDetailsImpl userDetails) {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(auth -> auth.getAuthority())
-                .collect(java.util.stream.Collectors.toList());
+                .toList();
         
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())

@@ -54,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
 
 		int outboundId = data.getOutboundFlightId();
 
-		FlightDto outboundFlight = flightserviceclient.getFlightDetails(data.getOutboundFlightId())
+		FlightDto outboundFlight = flightserviceclient.getFlightDetails(outboundId)
 				.orElseThrow(() -> new ResourceNotFoundException("Outbound flight not found"));
 
 		if (outboundFlight.getTotalSeats() < data.getNoOfSeats()) {
@@ -149,7 +149,7 @@ public class BookingServiceImpl implements BookingService {
 		FlightDto flightDetails = flightserviceclient.getFlightDetails((bookingEntity.getFlightId())).orElse(null);
 		BookingGetResponse response = new BookingGetResponse();
 		response.setPnr(bookingEntity.getPnr());
-		response.setFlightId(String.valueOf(bookingEntity.getFlightId()));
+		response.setFlightId(String.valueOf(flightDetails.getFlightId()));
 		List<Passengers> passengersList = bookingEntity.getPassengers().stream().map(entity -> {
 			Passengers passengerDto = new Passengers();
 			passengerDto.setName(entity.getName());
@@ -218,7 +218,6 @@ response.setEmail(bookingEntity.getEmailId());
 				bookingDto.setEmailId(booking.getEmailId());
 				bookingDto.setNoOfSeats(booking.getNoOfSeats());
 				if (booking.getUserId() != null) {
-					User user = new User();
 					Optional<User> name = userRepository.findById(booking.getUserId());
 
 					bookingDto.setName(name.get().getName());

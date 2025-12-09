@@ -2,6 +2,7 @@ package com.apigateway.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,15 +14,14 @@ import com.apigateway.dto.SignUpRequest;
 import com.apigateway.service.AuthService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final AuthService authService;
 
-	public AuthController(AuthService authService) {
+    private final AuthService authService;
+	public AuthController(AuthService authService, PasswordEncoder passwordEncoder) {
 		this.authService=authService;
 	}
     @PostMapping("/signin")
@@ -30,7 +30,8 @@ public class AuthController {
                 .<ResponseEntity<?>>map(jwtResponse -> ResponseEntity.ok(jwtResponse))
                 .onErrorResume(e -> {
                     MessageResponse errorResponse = new MessageResponse("Error: Invalid username or password!");
-                    return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()));
+                    String response=errorResponse+"\n"+e.getMessage();
+                    return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response));
                 });
     }
 

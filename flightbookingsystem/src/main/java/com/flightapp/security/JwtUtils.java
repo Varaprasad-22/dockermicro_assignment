@@ -1,4 +1,3 @@
-// File: src/main/java/com/flightapp/security/JwtUtils.java
 package com.flightapp.security;
 
 import io.jsonwebtoken.*;
