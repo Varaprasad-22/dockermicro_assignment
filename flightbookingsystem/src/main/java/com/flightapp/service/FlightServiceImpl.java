@@ -69,7 +69,7 @@ public class FlightServiceImpl implements FlightService {
 	}
 
 	@Override
-	@CircuitBreaker(name = "flightServiceCb", fallbackMethod = "SearchCb")
+	@CircuitBreaker(name = "flightServiceCb", fallbackMethod = "searchCb")
 	public SearchResult search(Search searchRequest) {
 		SearchResult result = new SearchResult();
 
@@ -99,7 +99,7 @@ public class FlightServiceImpl implements FlightService {
 		return result;
 	}
 
-	public SearchResult SearchCb() {
+	public SearchResult searchCb() {
 
 		SearchResult searchCb = new SearchResult();
 		searchCb.setMessage("Failed Server Flight Try Later On");

@@ -138,7 +138,7 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	@CircuitBreaker(name = "BookingServiceCb", fallbackMethod = "ByPnr")
+	@CircuitBreaker(name = "BookingServiceCb", fallbackMethod = "byPnr")
 	public BookingGetResponse getBookingDetails(String pnr) {
 		Optional<BookingEntity> bookingOpt = bookingRepository.findByPnr(pnr);
 		if (!bookingOpt.isPresent()) {
@@ -164,7 +164,7 @@ response.setEmail(bookingEntity.getEmailId());
 		return response;
 	}
 
-	public BookingGetResponse ByPnr(String pnr, Throwable ex) {
+	public BookingGetResponse byPnr(String pnr, Throwable ex) {
 		BookingGetResponse response = new BookingGetResponse();
 		response.setPnr(pnr);
 		response.setMessage("failed to Send Request Server Down"+ex.getMessage());

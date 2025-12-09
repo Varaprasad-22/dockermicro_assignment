@@ -11,7 +11,7 @@ import com.apigateway.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(@Param("username") String username);
-    Boolean existsByUsername(String username);
-    Boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
     Optional<User> findByEmail(@Param("email") String email);
 }
