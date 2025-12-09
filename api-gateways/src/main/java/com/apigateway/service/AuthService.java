@@ -61,17 +61,17 @@ public class AuthService {
 
 			if (strRoles == null || strRoles.isEmpty()) {
 				Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found need to be either user or admin."));
 				roles.add(userRole);
 			} else {
 				strRoles.forEach(role -> {
-					switch (role.toLowerCase()) {
-					case "admin":
+					if(role.toLowerCase().equalsIgnoreCase("admin")) {
+					
 						Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+								.orElseThrow(() -> new RuntimeException("Error: admin is not found."));
 						roles.add(adminRole);
-						break;
-					default:
+					}
+					else {
 						Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 						roles.add(userRole);
@@ -94,8 +94,7 @@ public class AuthService {
 			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 			String jwt = jwtUtils.generateTokenFromUserDetails(userDetails);
 			List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-					.collect(Collectors.toList());
-
+					.toList();
 			return Mono.just(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
 					userDetails.getEmail(), roles));
 		});

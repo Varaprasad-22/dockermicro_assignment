@@ -13,7 +13,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class BookingSystemApplication {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		SpringApplication.run(BookingSystemApplication.class,args);
 		
 	}

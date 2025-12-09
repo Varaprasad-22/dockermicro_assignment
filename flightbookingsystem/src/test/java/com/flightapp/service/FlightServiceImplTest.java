@@ -24,10 +24,9 @@ import com.flightapp.model.Airline;
 import com.flightapp.model.FlightEntity;
 import com.flightapp.repository.AirlineRepository;
 import com.flightapp.repository.FlightRepository;
-import com.flightapp.service.FlightServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class FlightServiceImplTest {
+class FlightServiceImplTest {
 	@Mock
 	private FlightRepository flightRepo;
 

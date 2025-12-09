@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -125,7 +124,7 @@ public class FlightServiceImpl implements FlightService {
 			flightRequestDto.setArrivalTime(entity.getArrivalTime());
 
 			return flightRequestDto;
-		}).collect(Collectors.toList());
+		}).toList();
 	}
 
 	@Override

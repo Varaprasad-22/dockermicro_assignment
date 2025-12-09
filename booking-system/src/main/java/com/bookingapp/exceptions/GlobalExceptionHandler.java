@@ -7,7 +7,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
+import org.springframework.lang.Nullable;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,13 +19,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-	private final String message="message";
+	private static final String message="message";
+    @Nullable
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		Map<String, String> body = new HashMap<>();
 		String err = e.getBindingResult().getAllErrors().stream()
-				.map(a -> ((FieldError) a).getDefaultMessage()).findFirst().orElse("Invalid input");
+				.map(ObjectError::getDefaultMessage).findFirst().orElse("Invalid input");
 		body.put(message, err);
 		return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
 	}

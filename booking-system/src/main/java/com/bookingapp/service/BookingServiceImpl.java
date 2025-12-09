@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -121,7 +120,8 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	public ResponseEntity<String> boooking(Bookingdto data, Throwable ex) {
-		return ResponseEntity.status(503).body("Booking Service is DOWN. Try again later.");
+		
+		return ResponseEntity.status(503).body("Booking Service is DOWN. Try again later."+data+ex.getMessage());
 	}
 
 	private User getOrCreateUser(String email, String name) {
@@ -158,7 +158,7 @@ public class BookingServiceImpl implements BookingService {
 			passengerDto.setMeal(entity.getMeal());
 			passengerDto.setSeatNo(entity.getSeatNo());
 			return passengerDto;
-		}).collect(Collectors.toList());
+		}).toList();
 response.setEmail(bookingEntity.getEmailId());
 		response.setPassengersList(passengersList);
 		return response;
@@ -166,8 +166,8 @@ response.setEmail(bookingEntity.getEmailId());
 
 	public BookingGetResponse ByPnr(String pnr, Throwable ex) {
 		BookingGetResponse response = new BookingGetResponse();
-		response.setPnr(null);
-		response.setMessage("failed to Send Request Server Down");
+		response.setPnr(pnr);
+		response.setMessage("failed to Send Request Server Down"+ex.getMessage());
 		response.setFlightId(null);
 		return response;
 	}
@@ -176,9 +176,7 @@ response.setEmail(bookingEntity.getEmailId());
 //	@CircuitBreaker(name = "BookingServiceCb", fallbackMethod = "cancleTicketCb")
 	public String cancelTicket(String pnr) {
 		BookingEntity bookingOpt = bookingRepository.findByPnr(pnr).orElseThrow(()-> new ResourceNotFoundException("Cancellation Failed: PNR not found."));
-//		if (!bookingOpt.isPresent()) {
-//			throw new ResourceNotFoundException("Cancellation Failed: PNR not found.");
-//		}
+
 		BookingEntity bookingEntity = bookingOpt;
 		FlightDto flightDetails = flightserviceclient.getFlightDetails(bookingEntity.getFlightId())
 				.orElseThrow(() -> new ResourceNotFoundException("Flight not found"));
@@ -200,7 +198,7 @@ response.setEmail(bookingEntity.getEmailId());
 	}
 
 	public String cancleTicketCb(String pnr, Throwable ex) {
-		return "The server is Down";
+		return "The server is Down"+pnr+ex.getMessage();
 	}
 
 	@Override
@@ -249,7 +247,7 @@ response.setEmail(bookingEntity.getEmailId());
 	public List<Bookingdto> ByEmail(String Email, Throwable ex) {
 		Bookingdto forCb = new Bookingdto();
 		forCb.setEmailId(Email);
-		forCb.setName("The Server is Down Failed to Load");
+		forCb.setName("The Server is Down Failed to Load"+ex.getMessage());
 
 		return List.of(forCb);
 	}

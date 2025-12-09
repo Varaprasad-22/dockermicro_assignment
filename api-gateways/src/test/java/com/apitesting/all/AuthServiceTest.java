@@ -50,6 +50,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setup() {
+    	//no need creating at each case itself
     }
 
     @Test
@@ -91,7 +92,7 @@ class AuthServiceTest {
         req.setEmail("x@example.com");
         req.setPassword("p");
 
-        when(userRepository.existsByUsername(eq("exists"))).thenReturn(true);
+        when(userRepository.existsByUsername("exists")).thenReturn(true);
 
         StepVerifier.create(authService.register(req))
                 .assertNext(msg -> {

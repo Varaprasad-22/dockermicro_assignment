@@ -15,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
@@ -37,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 List<SimpleGrantedAuthority> authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+                        .toList();
 
                 // Fallback: if token didn't contain roles, accept roles forwarded by gateway
                 if (authorities.isEmpty()) {
@@ -50,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .map(String::trim)
                                 .filter(s -> !s.isEmpty())
                                 .map(SimpleGrantedAuthority::new)
-                                .collect(Collectors.toList());
+                                .toList();
                     }
                 }
 
