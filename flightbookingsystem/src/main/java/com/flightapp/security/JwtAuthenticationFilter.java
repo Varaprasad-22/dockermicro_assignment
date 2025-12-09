@@ -23,7 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtUtils = jwtUtils;
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String username = jwtUtils.getUsernameFromJwtToken(jwt);
                 List<String> roles = jwtUtils.getRolesFromJwtToken(jwt);
 
-                logger.debug("JWT validated for user: {}, roles: {}", username, roles);
+                log.debug("JWT validated for user: {}, roles: {}", username, roles);
 
                 List<SimpleGrantedAuthority> authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)
@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 if (authorities.isEmpty()) {
-                    logger.warn("No authorities found for user: {}", username);
+                    log.warn("No authorities found for user: {}", username);
                 }
 
                 UsernamePasswordAuthenticationToken authentication =
@@ -61,16 +61,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.debug("Authentication set for user: {} with authorities: {}", username, authorities);
+                log.debug("Authentication set for user: {} with authorities: {}", username, authorities);
             } else {
                 if (jwt == null) {
-                    logger.debug("No JWT token found in request");
+                    log.debug("No JWT token found in request");
                 } else {
-                    logger.warn("JWT token validation failed");
+                    log.warn("JWT token validation failed");
                 }
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e.getMessage(), e);
+            log.error("Cannot set user authentication: {}", e.getMessage(), e);
         }
 
         filterChain.doFilter(request, response);

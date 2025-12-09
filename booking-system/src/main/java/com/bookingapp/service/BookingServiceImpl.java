@@ -202,7 +202,7 @@ response.setEmail(bookingEntity.getEmailId());
 	}
 
 	@Override
-	@CircuitBreaker(name = "BookingServiceCb", fallbackMethod = "ByEmail")
+	@CircuitBreaker(name = "BookingServiceCb", fallbackMethod = "byEmail")
 	public List<Bookingdto> getHistoryByEmail(String emailId) {
 		List<Bookingdto> bookingData = new ArrayList<>();
 		try {
@@ -244,7 +244,7 @@ response.setEmail(bookingEntity.getEmailId());
 		return bookingData;
 	}
 
-	public List<Bookingdto> ByEmail(String Email, Throwable ex) {
+	public List<Bookingdto> byEmail(String Email, Throwable ex) {
 		Bookingdto forCb = new Bookingdto();
 		forCb.setEmailId(Email);
 		forCb.setName("The Server is Down Failed to Load"+ex.getMessage());

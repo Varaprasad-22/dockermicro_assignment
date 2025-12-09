@@ -12,6 +12,7 @@ import com.flightapp.model.Airline;
 import com.flightapp.model.FlightEntity;
 import com.flightapp.dto.Search;
 import com.flightapp.dto.SearchResult;
+import com.flightapp.exceptions.BookingException;
 import com.flightapp.exceptions.ResourceNotFoundException;
 import com.flightapp.repository.AirlineRepository;
 import com.flightapp.repository.FlightRepository;
@@ -59,7 +60,7 @@ public class FlightServiceImpl implements FlightService {
 			return savedFlight.getFlightId();
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException("Flight Saved failed: " + e.getMessage());
+			throw new BookingException("Flight Saved failed: " + e.getMessage());
 		}
 
 	}
@@ -162,7 +163,7 @@ public class FlightServiceImpl implements FlightService {
 		FlightEntity entity = flightdata.get();
 		entity.setAvaliSeats(entity.getAvaliSeats() + changeInSeats);
 		flightRepository.save(entity);
-		return;
+	
 	}
 
 }

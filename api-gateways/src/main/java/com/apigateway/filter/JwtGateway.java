@@ -1,4 +1,3 @@
-// File: src/main/java/com/apigateway/filter/JwtGateway.java
 package com.apigateway.filter;
 
 import java.nio.charset.StandardCharsets;
@@ -100,7 +99,7 @@ public class JwtGateway implements GlobalFilter {
                        .parseClaimsJws(token)
                        .getBody();
         } catch (Exception ex) {
-            return null;
+            return Jwts.claims(); 
         }
     }
 }
