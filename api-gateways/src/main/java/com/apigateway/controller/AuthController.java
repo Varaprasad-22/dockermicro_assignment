@@ -24,9 +24,9 @@ public class AuthController {
 		this.authService=authService;
 	}
     @PostMapping("/signin")
-    public Mono<ResponseEntity<?>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public Mono<ResponseEntity<Object>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         return authService.authenticate(loginRequest)
-                .<ResponseEntity<?>>map(jwtResponse -> ResponseEntity.ok(jwtResponse))
+                .map(jwtResponse -> ResponseEntity.ok((Object)jwtResponse))
                 .onErrorResume(e -> {
                     MessageResponse errorResponse = new MessageResponse("Error: Invalid username or password!");
                     String response=errorResponse+"\n"+e.getMessage();
@@ -35,21 +35,21 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public Mono<ResponseEntity<?>> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public Mono<ResponseEntity<Object>> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         return authService.register(signUpRequest)
                 .map(messageResponse -> {
                     if (messageResponse.getMessage().contains("Error")) {
                         return ResponseEntity.badRequest().body(messageResponse);
                     }
-                    return (ResponseEntity<?>) ResponseEntity
+                    return ResponseEntity
                             .status(HttpStatus.CREATED)
-                            .body(messageResponse);
+                            .body((Object)messageResponse);
                 });
     }
 
     @PostMapping("/signout")
-    public Mono<ResponseEntity<?>> logoutUser() {
-        return Mono.just(ResponseEntity.ok(new MessageResponse("You've been signed out!")));
+    public Mono<ResponseEntity<Object>> logoutUser() {
+        return Mono.just(ResponseEntity.ok((Object)new MessageResponse("You've been signed out!")));
     }
 }
 
