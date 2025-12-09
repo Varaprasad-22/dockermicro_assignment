@@ -244,9 +244,9 @@ response.setEmail(bookingEntity.getEmailId());
 		return bookingData;
 	}
 
-	public List<Bookingdto> byEmail(String Email, Throwable ex) {
+	public List<Bookingdto> byEmail(String email, Throwable ex) {
 		Bookingdto forCb = new Bookingdto();
-		forCb.setEmailId(Email);
+		forCb.setEmailId(email);
 		forCb.setName("The Server is Down Failed to Load"+ex.getMessage());
 
 		return List.of(forCb);
