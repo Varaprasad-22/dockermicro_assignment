@@ -64,7 +64,7 @@ class AuthServiceTest {
         when(userRepository.existsByEmail(("newuser@example.com"))).thenReturn(false);
 
         Role userRole = new Role();
-        userRole.setId((int) 2L);
+        userRole.setId( 2L);
         userRole.setName(ERole.ROLE_USER);
 
         when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));

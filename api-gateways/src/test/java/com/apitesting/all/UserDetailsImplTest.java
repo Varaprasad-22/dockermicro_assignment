@@ -22,7 +22,7 @@ class UserDetailsImplTest {
         u.setPassword("pwd");
 
         Role r = new Role();
-        r.setId((int) 1L);
+        r.setId( 1L);
         r.setName(ERole.ROLE_USER);
 
         u.setRoles(Set.of(r));
