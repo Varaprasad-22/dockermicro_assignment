@@ -1,0 +1,31 @@
+package com.apigateway.service;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.apigateway.model.User;
+import com.apigateway.repository.UserRepository;
+
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
+@Service
+public class UserDetailsServiceImpl implements ReactiveUserDetailsService {
+	private final UserRepository userRepository;
+
+    public UserDetailsServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+    @Override
+    public Mono<UserDetails> findByUsername(String username) {
+        return Mono.fromCallable(() -> {
+                    User user = userRepository.findByUsername(username)
+                            .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+                    return UserDetailsImpl.build(user);
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .cast(UserDetails.class);
+    }
+}
+
