@@ -123,7 +123,7 @@ public class FlightServiceImpl implements FlightService {
 			flightRequestDto.setTotalSeats(entity.getTotalSeats());
 			flightRequestDto.setDepatureTime(entity.getDepatureTime());
 			flightRequestDto.setArrivalTime(entity.getArrivalTime());
-
+			flightRequestDto.setFlightId(entity.getFlightId());
 			return flightRequestDto;
 		}).toList();
 	}
