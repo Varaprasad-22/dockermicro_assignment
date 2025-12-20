@@ -149,7 +149,7 @@ public class BookingServiceImpl implements BookingService {
 		FlightDto flightDetails = flightserviceclient.getFlightDetails((bookingEntity.getFlightId())).orElse(null);
 		BookingGetResponse response = new BookingGetResponse();
 		response.setPnr(bookingEntity.getPnr());
-		response.setFlightId(String.valueOf(flightDetails.getFlightId()));
+		response.setFlightId((flightDetails.getFlightId()));
 		List<Passengers> passengersList = bookingEntity.getPassengers().stream().map(entity -> {
 			Passengers passengerDto = new Passengers();
 			passengerDto.setName(entity.getName());
@@ -203,8 +203,8 @@ response.setEmail(bookingEntity.getEmailId());
 
 	@Override
 	@CircuitBreaker(name = "BookingServiceCb", fallbackMethod = "byEmail")
-	public List<Bookingdto> getHistoryByEmail(String emailId) {
-		List<Bookingdto> bookingData = new ArrayList<>();
+	public List<BookingGetResponse> getHistoryByEmail(String emailId) {
+		List<BookingGetResponse> bookingData = new ArrayList<>();
 		try {
 			List<BookingEntity> bookingEntityList = bookingRepository.findAllByEmailId(emailId);
 			if (bookingEntityList.isEmpty()) {
@@ -212,9 +212,9 @@ response.setEmail(bookingEntity.getEmailId());
 			}
 			for (BookingEntity booking : bookingEntityList) {
 
-				Bookingdto bookingDto = new Bookingdto();
-				bookingDto.setEmailId(booking.getEmailId());
-				bookingDto.setNoOfSeats(booking.getNoOfSeats());
+				BookingGetResponse bookingDto = new BookingGetResponse();
+				bookingDto.setEmail(booking.getEmailId());
+//				bookingDto.setNoOfSeats(booking.getNoOfSeats());
 				if (booking.getUserId() != null) {
 					Optional<User> name = userRepository.findById(booking.getUserId());
 
@@ -234,7 +234,10 @@ response.setEmail(bookingEntity.getEmailId());
 
 					passengerDtoList.add(passengerDto);
 				}
-				bookingDto.setPassengers(passengerDtoList);
+				bookingDto.setPassengersList(passengerDtoList);
+				bookingDto.setPnr(booking.getPnr());
+				bookingDto.setFlightId(booking.getFlightId());
+				bookingDto.setStatus(booking.isStatus());
 				bookingData.add(bookingDto);
 
 			}
@@ -244,9 +247,9 @@ response.setEmail(bookingEntity.getEmailId());
 		return bookingData;
 	}
 
-	public List<Bookingdto> byEmail(String email, Throwable ex) {
-		Bookingdto forCb = new Bookingdto();
-		forCb.setEmailId(email);
+	public List<BookingGetResponse> byEmail(String email, Throwable ex) {
+		BookingGetResponse forCb = new BookingGetResponse();
+		forCb.setEmail(email);
 		forCb.setName("The Server is Down Failed to Load"+ex.getMessage());
 
 		return List.of(forCb);

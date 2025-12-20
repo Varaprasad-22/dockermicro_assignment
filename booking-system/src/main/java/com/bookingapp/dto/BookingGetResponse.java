@@ -3,17 +3,19 @@ package com.bookingapp.dto;
 import java.util.List;
 
 public class BookingGetResponse {
-	private String flightId;
+	private Integer flightId;
 	private String pnr;
 	private String message;
 	private String email;
+	private String name;
+	private boolean status;
 	private List<Passengers> passengersList;
 
-	public String getFlightId() {
+	public Integer getFlightId() {
 		return flightId;
 	}
 
-	public void setFlightId(String flightId) {
+	public void setFlightId(Integer flightId) {
 		this.flightId = flightId;
 	}
 
@@ -47,5 +49,21 @@ public class BookingGetResponse {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean statusl) {
+		this.status = statusl;
 	}
 }
