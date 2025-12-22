@@ -8,6 +8,10 @@ spring:
   config:
     import: optional:configserver:http://config-server:8888
 
+  cloud:
+    config:
+      format: yaml
+
   rabbitmq:
     host: localhost
     port: 5672

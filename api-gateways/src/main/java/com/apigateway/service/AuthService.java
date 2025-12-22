@@ -3,9 +3,11 @@ package com.apigateway.service;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.apigateway.dto.ChangePasswordRequest;
 import com.apigateway.dto.JwtResponse;
 import com.apigateway.dto.LoginRequest;
 import com.apigateway.dto.MessageResponse;
@@ -117,4 +119,26 @@ public class AuthService {
 	                );
 	            });
 	}
+	public Mono<MessageResponse> changePassword(
+	        String username,
+	        ChangePasswordRequest request) {
+
+	    return Mono.fromCallable(() -> {
+
+	        User user = userRepository.findByUsername(username)
+	                .orElseThrow(() ->
+	                        new RuntimeException("Error: User not found"));
+
+	        user.setPassword(
+	                passwordEncoder.encode(request.getNewPassword())
+	        );
+
+	        userRepository.save(user);
+
+	        return new MessageResponse("Password updated successfully");
+
+	    }).subscribeOn(Schedulers.boundedElastic());
+	}
+
+
 }
