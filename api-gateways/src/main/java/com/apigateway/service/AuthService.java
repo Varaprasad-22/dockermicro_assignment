@@ -15,7 +15,7 @@ import com.apigateway.model.Role;
 import com.apigateway.model.User;
 import com.apigateway.repository.RoleRepository;
 import com.apigateway.repository.UserRepository;
-import com.apigateway.security.JwtUtils;
+import com.apigateway.security.JwtUtil;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -29,11 +29,11 @@ public class AuthService {
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtUtils jwtUtils;
+	private final JwtUtil jwtUtils;
 	private final ReactiveAuthenticationManager authenticationManager;
 
 	public AuthService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
-			JwtUtils jwtUtils, ReactiveAuthenticationManager authenticationManager) {
+			JwtUtil jwtUtils, ReactiveAuthenticationManager authenticationManager) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
@@ -59,18 +59,17 @@ public class AuthService {
 			Set<Role> roles = new HashSet<>();
 
 			if (strRoles == null || strRoles.isEmpty()) {
-				Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-						.orElseThrow(() -> new RuntimeException("Error: Role is not found need to be either user or admin."));
+				Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(
+						() -> new RuntimeException("Error: Role is not found need to be either user or admin."));
 				roles.add(userRole);
 			} else {
 				strRoles.forEach(role -> {
-					if(role.toLowerCase().equalsIgnoreCase("admin")) {
-					
+					if (role.toLowerCase().equalsIgnoreCase("admin")) {
+
 						Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
 								.orElseThrow(() -> new RuntimeException("Error: admin is not found."));
 						roles.add(adminRole);
-					}
-					else {
+					} else {
 						Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 								.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 						roles.add(userRole);
@@ -85,17 +84,37 @@ public class AuthService {
 		}).subscribeOn(Schedulers.boundedElastic());
 	}
 
-	public Mono<JwtResponse> authenticate(LoginRequest loginRequest) {
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginRequest.getUsername(), loginRequest.getPassword());
+	public Mono<JwtResponse> authenticate(LoginRequest request) {
 
-		return authenticationManager.authenticate(authenticationToken).flatMap(authentication -> {
-			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-			String jwt = jwtUtils.generateTokenFromUserDetails(userDetails);
-			List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-					.toList();
-			return Mono.just(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
-					userDetails.getEmail(), roles));
-		});
+	    var authToken = new UsernamePasswordAuthenticationToken(
+	            request.getUsername(),
+	            request.getPassword()
+	    );
+
+	    return authenticationManager.authenticate(authToken)
+	            .map(auth -> {
+                UserDetailsImpl userDetails =
+                        (UserDetailsImpl) auth.getPrincipal();
+
+                System.out.println("email points = " + userDetails.getEmail());
+	            	   String role = auth.getAuthorities().stream()
+	                           .map(GrantedAuthority::getAuthority)
+	                           .filter(r -> r.startsWith("ROLE_"))
+	                           .map(r -> r.replace("ROLE_", ""))
+	                           .findFirst()
+	                           .orElse("USER");
+
+	                String jwt = jwtUtils.generateToken(
+	                        request.getUsername(),
+	                        role
+	                );
+
+	                return new JwtResponse(
+	                        jwt,
+	                        request.getUsername(),
+	                        role,
+							 userDetails.getEmail() 
+	                );
+	            });
 	}
 }

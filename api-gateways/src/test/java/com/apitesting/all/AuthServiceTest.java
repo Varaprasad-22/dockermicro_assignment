@@ -13,7 +13,7 @@ import com.apigateway.model.Role;
 import com.apigateway.model.User;
 import com.apigateway.repository.RoleRepository;
 import com.apigateway.repository.UserRepository;
-import com.apigateway.security.JwtUtils;
+import com.apigateway.security.JwtUtil;
 import com.apigateway.service.AuthService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +39,7 @@ class AuthServiceTest {
     PasswordEncoder passwordEncoder;
 
     @Mock
-    JwtUtils jwtUtils;
+    JwtUtil jwtUtils;
 
     @Mock
     org.springframework.security.authentication.ReactiveAuthenticationManager authenticationManager;

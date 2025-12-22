@@ -12,5 +12,5 @@ public interface BookingService {
 
 	String cancelTicket(String pnr);
 
-	List<Bookingdto> getHistoryByEmail(String emailId);
+	List<BookingGetResponse> getHistoryByEmail(String emailId);
 }
