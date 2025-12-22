@@ -3,13 +3,12 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=authdb
-      - MYSQL_DEFAULT_AUTHENTICATION_PLUGIN=mysql_native_password # Corrected syntax
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authdb
     volumes:
       - mysql-data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     networks:
       - app-network
 
@@ -18,47 +17,38 @@ services:
     volumes:
       - mongo-data:/data/db
     ports:
-      - "27017:27017"
+      - "27018:27017"
     networks:
       - app-network
 
   rabbitmq:
     image: rabbitmq:3.11-management
     environment:
-      - RABBITMQ_DEFAULT_USER=myuser
-      - RABBITMQ_DEFAULT_PASS=mypass
+      RABBITMQ_DEFAULT_USER: myuser
+      RABBITMQ_DEFAULT_PASS: mypass
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5673:5672"
+      - "15673:15672"
     networks:
       - app-network
 
   eureka-server:
     build:
-      context: .
-      dockerfile: eurekas/Dockerfile
+      context: ./eurekas
     container_name: eureka-server
     ports:
       - "8761:8761"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-    depends_on:
-      - mysql
     networks:
       - app-network
 
   config-server:
     build:
-      context: .
-      dockerfile: configserver/Dockerfile
+      context: ./configserver
     container_name: config-server
     ports:
       - "8888:8888"
     environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_SKIP_SSL_VALIDATION=true
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
       - eureka-server
     networks:
@@ -66,44 +56,42 @@ services:
 
   flight-service:
     build:
-      context: .
-      dockerfile: flightbookingsystem/Dockerfile
+      context: ./flightbookingsystem
     container_name: flight-service
     ports:
       - "8210:8210"
     environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_PROFILES_ACTIVE=dev
-      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
-      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=com.mysql.cj.jdbc.Driver
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/authdb?useSSL=false&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
     depends_on:
+      - mysql
       - config-server
       - eureka-server
-      - mysql
     networks:
       - app-network
 
   booking-service:
     build:
-      context: .
-      dockerfile: booking-system/Dockerfile
+      context: ./booking-system
     container_name: booking-service
     ports:
       - "8211:8211"
     environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/bookingdb
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=myuser
-      - SPRING_RABBITMQ_PASSWORD=mypass
-      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/bookingdb
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: myuser
+      SPRING_RABBITMQ_PASSWORD: mypass
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
     depends_on:
       - mongo
       - rabbitmq
@@ -114,23 +102,22 @@ services:
 
   api-gateway:
     build:
-      context: .
-      dockerfile: api-gateways/Dockerfile
+      context: ./api-gateways
     container_name: api-gateway
     ports:
       - "8212:8212"
     environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/authdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
     depends_on:
       - mysql
-      - eureka-server
       - config-server
+      - eureka-server
     networks:
       - app-network
 

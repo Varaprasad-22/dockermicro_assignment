@@ -1,9 +1,7 @@
 package com.bookingapp.dto;
 
 import java.util.List;
-import lombok.Data;
-
-@Data
+import com.bookingapp.dto.Flight;
 public class SearchResult {
 
 	private List<Flight> outboundFlights;

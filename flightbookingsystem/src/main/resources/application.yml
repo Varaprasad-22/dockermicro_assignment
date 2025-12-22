@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: flight-service
+
+  config:
+    import: optional:configserver:http://config-server:8888
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      flightServiceCb:
+        sliding-window-size: 5
+        max-wait-duration-in-half-open-state: 2s
+        wait-duration-in-open-state: 2s
+        failure-rate-threshold: 50
+      BookingServiceCb:
+        permitted-number-of-calls-in-half-open-state: 2
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+    com:
+      flightapp:
+        security: DEBUG
+
+jwt:
+  secret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123"
+  expiration: 86400000
