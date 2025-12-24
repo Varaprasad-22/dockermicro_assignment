@@ -70,5 +70,12 @@ public class AuthController {
 	            .map(ResponseEntity::ok);
 	}
 
+	//for expired Password
+	@PostMapping("/changeOnExpire")
+	public Mono<ResponseEntity<MessageResponse>> changeOnExpire(
+			@Valid @RequestBody ChangePasswordRequest request){
+		return authService.changePassword(request.getName(), request)
+				.map(ResponseEntity::ok);
+	}
 
 }
