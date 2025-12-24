@@ -143,9 +143,14 @@ private final int password_expires_in=10;
 	                .orElseThrow(() ->
 	                        new RuntimeException("Error: User not found"));
 	        if(request.getOldPassword().equals(request.getNewPassword())) {
-	        	return new MessageResponse("Old password should not be same as new Password");
+	        	throw new RuntimeException("Old password should not be same as new Password");
 	        }
 
+	        if (!passwordEncoder.matches(
+	                request.getOldPassword(),
+	                user.getPassword())) {
+	            throw new RuntimeException("Invalid old password");
+	        }
 	        user.setPassword(
 	                passwordEncoder.encode(request.getNewPassword())
 	        );
