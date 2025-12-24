@@ -166,4 +166,28 @@ public class FlightServiceImpl implements FlightService {
 	
 	}
 
+	@Override
+	public List<Flight> getAll() {
+		List<FlightEntity> entries=flightRepository.findAll();
+		if(entries.isEmpty()) {
+			throw new ResourceNotFoundException("No Flights Avaliable");
+		}
+		return entries.stream().map(eachFlight->{
+			Flight dto = new Flight();
+			Airline airline=airlineRepository.findByAirlineId(eachFlight.getAirlineId()).
+					orElseThrow(()->  new ResourceNotFoundException("Airline not found for ID: " + eachFlight.getAirlineId()));
+			 dto.setFlightId(eachFlight.getFlightId());
+		        dto.setAirlineName(airline.getAirlineName());
+		        dto.setFlightNumber(eachFlight.getFlightNumber());
+		        dto.setFromPlace(eachFlight.getFromLocation());
+		        dto.setToPlace(eachFlight.getToLocation());
+		        dto.setDepatureTime(eachFlight.getDepatureTime());
+		        dto.setArrivalTime(eachFlight.getArrivalTime());
+		        dto.setTotalSeats(eachFlight.getAvaliSeats());
+		        dto.setPrice(eachFlight.getPrice());
+
+		        return dto;
+		}).toList();
+	}
+
 }
