@@ -1,4 +1,5 @@
-version: '3.8'
+version: "3.8"
+
 services:
   mysql:
     image: mysql:8.0
@@ -64,6 +65,10 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_PROFILES_ACTIVE: dev
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      EUREKA_INSTANCE_HOSTNAME: flight-service
+
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb?useSSL=false&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
@@ -86,6 +91,10 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_PROFILES_ACTIVE: dev
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      EUREKA_INSTANCE_HOSTNAME: booking-service
+
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/bookingdb
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
@@ -107,16 +116,14 @@ services:
     ports:
       - "8212:8212"
     environment:
-      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
-      SPRING_PROFILES_ACTIVE: dev
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
     depends_on:
       - mysql
-      - config-server
       - eureka-server
     networks:
       - app-network

@@ -57,29 +57,18 @@ public class AuthController {
 
 	@PostMapping("/change-password")
 	public Mono<ResponseEntity<MessageResponse>> changePassword(
-	        @RequestHeader(value = "Authorization", required = false) String authHeader,
+	        @RequestHeader("Authorization") String authHeader,
 	        @Valid @RequestBody ChangePasswordRequest request) {
 
-	    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-	        return Mono.just(
-	                ResponseEntity.status(401)
-	                        .body(new MessageResponse("Unauthorized"))
-	        );
-	    }
+	    // extract token
+	    String token = authHeader.substring(7); // remove "Bearer "
 
-	    String token = authHeader.substring(7);
-
-	    if (!jwtUtil.isValid(token)) {
-	        return Mono.just(
-	                ResponseEntity.status(401)
-	                        .body(new MessageResponse("Unauthorized"))
-	        );
-	    }
-
+	    // get username from token
 	    String username = jwtUtil.getClaims(token).getSubject();
 
 	    return authService.changePassword(username, request)
 	            .map(ResponseEntity::ok);
 	}
+
 
 }
