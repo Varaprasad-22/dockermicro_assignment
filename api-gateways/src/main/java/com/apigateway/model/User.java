@@ -1,8 +1,10 @@
 package com.apigateway.model;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -45,6 +47,28 @@ public class User {
     @Column(nullable = false, length = 120)
     private String password;
 
+    public LocalDateTime getPasswordLastChangedAt() {
+		return passwordLastChangedAt;
+	}
+
+	public void setPasswordLastChangedAt(LocalDateTime passwordLastChangedAt) {
+		this.passwordLastChangedAt = passwordLastChangedAt;
+	}
+
+	public Boolean getPasswordExpired() {
+		return passwordExpired;
+	}
+
+	public void setPasswordExpired(Boolean passwordExpired) {
+		this.passwordExpired = passwordExpired;
+	}
+
+	@Column(nullable = false)
+    private LocalDateTime passwordLastChangedAt;
+    
+    @Column(nullable = false)
+    private Boolean passwordExpired = false;
+    
     public Long getId() {
 		return id;
 	}

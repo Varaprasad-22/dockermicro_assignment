@@ -22,6 +22,7 @@ import com.apigateway.security.JwtUtil;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,7 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtils;
 	private final ReactiveAuthenticationManager authenticationManager;
-
+private final int password_expires_in=10;
 	public AuthService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
 			JwtUtil jwtUtils, ReactiveAuthenticationManager authenticationManager) {
 		this.userRepository = userRepository;
@@ -56,7 +57,8 @@ public class AuthService {
 			// Create new user's account
 			User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(),
 					passwordEncoder.encode(signUpRequest.getPassword()));
-
+			user.setPasswordLastChangedAt(LocalDateTime.now());
+			user.setPasswordExpired(false);
 			Set<String> strRoles = signUpRequest.getRole();
 			Set<Role> roles = new HashSet<>();
 
@@ -99,7 +101,19 @@ public class AuthService {
                         (UserDetailsImpl) auth.getPrincipal();
 
                 System.out.println("email points = " + userDetails.getEmail());
-	            	   String role = auth.getAuthorities().stream()
+                User user = userRepository.findByUsername(userDetails.getUsername())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+                LocalDateTime expireDate=user.getPasswordLastChangedAt().plusDays(password_expires_in);
+	            	 
+                if(expireDate.isBefore(LocalDateTime.now())) {
+                	user.setPasswordExpired(true);
+                	userRepository.save(user);
+                	throw new RuntimeException("password Expired");
+                }
+                
+                user.setPasswordExpired(false);
+                userRepository.save(user);
+                String role = auth.getAuthorities().stream()
 	                           .map(GrantedAuthority::getAuthority)
 	                           .filter(r -> r.startsWith("ROLE_"))
 	                           .map(r -> r.replace("ROLE_", ""))
@@ -132,7 +146,8 @@ public class AuthService {
 	        user.setPassword(
 	                passwordEncoder.encode(request.getNewPassword())
 	        );
-
+	        user.setPasswordLastChangedAt(LocalDateTime.now());
+	        user.setPasswordExpired(false);
 	        userRepository.save(user);
 
 	        return new MessageResponse("Password updated successfully");
