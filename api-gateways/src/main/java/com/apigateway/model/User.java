@@ -21,33 +21,30 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "users",
-       uniqueConstraints = {
-           @UniqueConstraint(columnNames = "username"),
-           @UniqueConstraint(columnNames = "email")
-       })
+@Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
+		@UniqueConstraint(columnNames = "email") })
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @NotBlank
-    @Size(max = 20)
-    @Column(unique = true, nullable = false, length = 20)
-    private String username;
+	@NotBlank
+	@Size(max = 20)
+	@Column(unique = true, nullable = false, length = 20)
+	private String username;
 
-    @NotBlank
-    @Size(max = 50)
-    @Email
-    @Column(unique = true, nullable = false, length = 50)
-    private String email;
+	@NotBlank
+	@Size(max = 50)
+	@Email
+	@Column(unique = true, nullable = false, length = 50)
+	private String email;
 
-    @NotBlank
-    @Size(max = 120)
-    @Column(nullable = false, length = 120)
-    private String password;
+	@NotBlank
+	@Size(max = 120)
+	@Column(nullable = false, length = 120)
+	private String password;
 
-    public LocalDateTime getPasswordLastChangedAt() {
+	public LocalDateTime getPasswordLastChangedAt() {
 		return passwordLastChangedAt;
 	}
 
@@ -63,19 +60,13 @@ public class User {
 		this.passwordExpired = passwordExpired;
 	}
 
-	@Column(
-		    name = "password_last_changed_at",
-		    nullable = false
-		)
-		private LocalDateTime passwordLastChangedAt;
+	@Column(name = "password_last_changed_at", nullable = false)
+	private LocalDateTime passwordLastChangedAt;
 
-		@Column(
-		    name = "password_expired",
-		    nullable = false
-		)
-		private Boolean passwordExpired = false;
-    
-    public Long getId() {
+	@Column(name = "password_expired", nullable = false)
+	private Boolean passwordExpired = false;
+
+	public Long getId() {
 		return id;
 	}
 
@@ -106,8 +97,10 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 	public User() {
-    }
+	}
+
 	public Set<Role> getRoles() {
 		return roles;
 	}
@@ -117,15 +110,12 @@ public class User {
 	}
 
 	@ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-               joinColumns = @JoinColumn(name = "user_id",referencedColumnName = "id"),
-               inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "id"))
-    private Set<Role> roles = new HashSet<>();
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+	private Set<Role> roles = new HashSet<>();
 
-    public User(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
+	public User(String username, String email, String password) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+	}
 }
-
