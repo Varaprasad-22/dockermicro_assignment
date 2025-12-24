@@ -34,10 +34,22 @@ public class AuthController {
 	}
 
 	@PostMapping("/signin")
-	public Mono<ResponseEntity<JwtResponse>> login(@Valid @RequestBody LoginRequest request) {
+	public Mono<ResponseEntity<Object>> login(
+	        @Valid @RequestBody LoginRequest request) {
 
-		return authService.authenticate(request).map(ResponseEntity::ok);
+	    return authService.authenticate(request)
+	            .map(jwt -> ResponseEntity.ok((Object) jwt))
+	            .onErrorResume(
+	                    org.springframework.security.authentication.CredentialsExpiredException.class,
+	                    ex -> Mono.just(
+	                            ResponseEntity
+	                                    .status(HttpStatus.FORBIDDEN)
+	                                    .body(new MessageResponse("PASSWORD_EXPIRED"))
+	                    )
+	            );
 	}
+
+
 
 	@PostMapping("/signout")
 	public Mono<ResponseEntity<MessageResponse>> logout() {
@@ -73,7 +85,7 @@ public class AuthController {
 	//for expired Password
 	@PostMapping("/changeOnExpire")
 	public Mono<ResponseEntity<MessageResponse>> changeOnExpire(
-			@Valid @RequestBody ChangePasswordRequest request){
+			@RequestBody ChangePasswordRequest request){
 		return authService.changePassword(request.getName(), request)
 				.map(ResponseEntity::ok);
 	}

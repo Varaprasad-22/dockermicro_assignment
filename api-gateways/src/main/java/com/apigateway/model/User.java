@@ -63,11 +63,17 @@ public class User {
 		this.passwordExpired = passwordExpired;
 	}
 
-	@Column(nullable = false)
-    private LocalDateTime passwordLastChangedAt;
-    
-    @Column(nullable = false)
-    private Boolean passwordExpired = false;
+	@Column(
+		    name = "password_last_changed_at",
+		    nullable = false
+		)
+		private LocalDateTime passwordLastChangedAt;
+
+		@Column(
+		    name = "password_expired",
+		    nullable = false
+		)
+		private Boolean passwordExpired = false;
     
     public Long getId() {
 		return id;
