@@ -108,7 +108,7 @@ private final int password_expires_in=10;
                 if(expireDate.isBefore(LocalDateTime.now())) {
                 	user.setPasswordExpired(true);
                 	userRepository.save(user);
-                	throw new RuntimeException("password Expired");
+                	throw new RuntimeException("password_Expired");
                 }
                 
                 user.setPasswordExpired(false);
