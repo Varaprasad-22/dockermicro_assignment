@@ -142,6 +142,9 @@ private final int password_expires_in=10;
 	        User user = userRepository.findByUsername(username)
 	                .orElseThrow(() ->
 	                        new RuntimeException("Error: User not found"));
+	        if(request.getOldPassword().equals(request.getNewPassword())) {
+	        	return new MessageResponse("Old password should not be same as new Password");
+	        }
 
 	        user.setPassword(
 	                passwordEncoder.encode(request.getNewPassword())
