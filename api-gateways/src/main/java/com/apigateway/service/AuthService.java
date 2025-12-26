@@ -122,8 +122,8 @@ private final int password_expires_in=10;
                 	throw new RuntimeException("password_Expired");
                 }
                 
-                user.setPasswordExpired(false);
-                userRepository.save(user);
+//                user.setPasswordExpired(false);
+//                userRepository.save(user);
                 String role = auth.getAuthorities().stream()
 	                           .map(GrantedAuthority::getAuthority)
 	                           .filter(r -> r.startsWith("ROLE_"))
