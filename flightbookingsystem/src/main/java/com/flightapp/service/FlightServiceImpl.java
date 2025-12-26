@@ -120,7 +120,7 @@ public class FlightServiceImpl implements FlightService {
 			flightRequestDto.setFromPlace(entity.getFromLocation());
 			flightRequestDto.setToPlace(entity.getToLocation());
 			flightRequestDto.setPrice(entity.getPrice());
-			flightRequestDto.setTotalSeats(entity.getTotalSeats());
+			flightRequestDto.setTotalSeats(entity.getAvaliSeats());
 			flightRequestDto.setDepatureTime(entity.getDepatureTime());
 			flightRequestDto.setArrivalTime(entity.getArrivalTime());
 			flightRequestDto.setFlightId(entity.getFlightId());

@@ -13,8 +13,10 @@ import com.apigateway.dto.LoginRequest;
 import com.apigateway.dto.MessageResponse;
 import com.apigateway.dto.SignUpRequest;
 import com.apigateway.model.ERole;
+import com.apigateway.model.PasswordResetToken;
 import com.apigateway.model.Role;
 import com.apigateway.model.User;
+import com.apigateway.repository.PasswordResetTokenRepository;
 import com.apigateway.repository.RoleRepository;
 import com.apigateway.repository.UserRepository;
 import com.apigateway.security.JwtUtil;
@@ -26,22 +28,28 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class AuthService {
+
+    private final EmailService emailService;
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtils;
 	private final ReactiveAuthenticationManager authenticationManager;
+	private final PasswordResetTokenRepository passwordResetRepository;
 private final int password_expires_in=10;
 	public AuthService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
-			JwtUtil jwtUtils, ReactiveAuthenticationManager authenticationManager) {
+			JwtUtil jwtUtils, ReactiveAuthenticationManager authenticationManager, EmailService emailService,PasswordResetTokenRepository passwordResetToken) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtils = jwtUtils;
 		this.authenticationManager = authenticationManager;
+		this.emailService = emailService;
+		this.passwordResetRepository=passwordResetToken;
 	}
 
 	public Mono<MessageResponse> register(SignUpRequest signUpRequest) {
@@ -161,6 +169,46 @@ private final int password_expires_in=10;
 	        return new MessageResponse("Password updated successfully");
 
 	    }).subscribeOn(Schedulers.boundedElastic());
+	}
+
+	public Mono<MessageResponse> forgotPassword(String email) {
+	    return Mono.fromCallable(() -> {
+	        User user = userRepository.findByEmail(email)
+	                .orElseThrow(() -> new RuntimeException("User not found"));
+
+	        String token = UUID.randomUUID().toString();
+
+	        PasswordResetToken resetToken = new PasswordResetToken();
+	        resetToken.setUser(user);
+	        resetToken.setToken(token);
+	        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+
+	        passwordResetRepository.deleteByUser(user);
+	        passwordResetRepository.save(resetToken);
+
+	        emailService.sendResetEmail(user.getEmail(), token);
+
+	        return new MessageResponse("Reset link sent to email");
+	    });
+	}
+	public Mono<MessageResponse> resetPassword(String token, String newPassword) {
+	    return Mono.fromCallable(() -> {
+	        PasswordResetToken resetToken = passwordResetRepository.findByToken(token)
+	                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+	        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+	            throw new RuntimeException("Token expired");
+	        }
+
+	        User user = resetToken.getUser();
+	        user.setPassword(passwordEncoder.encode(newPassword));
+	        user.setPasswordLastChangedAt(LocalDateTime.now());
+
+	        userRepository.save(user);
+	        passwordResetRepository.delete(resetToken);
+
+	        return new MessageResponse("Password updated successfully");
+	    });
 	}
 
 

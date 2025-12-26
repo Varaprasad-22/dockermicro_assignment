@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpHeaders;
 
 import com.apigateway.dto.ChangePasswordRequest;
+import com.apigateway.dto.ForgotPasswordRequest;
 import com.apigateway.dto.JwtResponse;
 import com.apigateway.dto.LoginRequest;
 import com.apigateway.dto.MessageResponse;
+import com.apigateway.dto.ResetPasswordRequest;
 import com.apigateway.dto.SignUpRequest;
 import com.apigateway.security.JwtUtil;
 import com.apigateway.service.AuthService;
@@ -89,5 +91,25 @@ public class AuthController {
 		return authService.changePassword(request.getName(), request)
 				.map(ResponseEntity::ok);
 	}
+	
+	//reset and forgot passwords
+	@PostMapping("/forgot-password")
+	public Mono<ResponseEntity<MessageResponse>> forgotPassword(
+	        @RequestBody ForgotPasswordRequest request) {
+
+	    return authService.forgotPassword(request.getEmail())
+	            .map(ResponseEntity::ok);
+	}
+
+	@PostMapping("/reset-password")
+	public Mono<ResponseEntity<MessageResponse>> resetPassword(
+	        @RequestBody ResetPasswordRequest request) {
+
+	    return authService.resetPassword(
+	            request.getToken(),
+	            request.getNewPassword()
+	    ).map(ResponseEntity::ok);
+	}
+
 
 }

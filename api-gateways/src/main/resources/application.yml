@@ -43,9 +43,18 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: virupavaraprasad22@gmail.com
+    password: vqaw fqfi axog xdee
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
 jwt:
   secret: MySuperSecretKeyForJwt123456789XYZ
-  expiration: 86400000
+  expiration: 86400000 # 24 hours in milliseconds
 
 logging:
   level:
