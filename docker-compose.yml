@@ -39,6 +39,11 @@ services:
     container_name: eureka-server
     ports:
       - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/eureka/apps"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - app-network
 
@@ -65,19 +70,20 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_PROFILES_ACTIVE: dev
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
       EUREKA_INSTANCE_HOSTNAME: flight-service
-
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb?useSSL=false&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
     depends_on:
-      - mysql
-      - config-server
-      - eureka-server
+      mysql:
+        condition: service_started
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -91,10 +97,8 @@ services:
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_PROFILES_ACTIVE: dev
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
       EUREKA_INSTANCE_HOSTNAME: booking-service
-
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/bookingdb
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
@@ -102,10 +106,14 @@ services:
       SPRING_RABBITMQ_PASSWORD: mypass
       JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
     depends_on:
-      - mongo
-      - rabbitmq
-      - config-server
-      - eureka-server
+      mongo:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -117,14 +125,15 @@ services:
       - "8212:8212"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/authdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123
     depends_on:
-      - mysql
-      - eureka-server
+      mysql:
+        condition: service_started
+      eureka-server:
+        condition: service_healthy
     networks:
       - app-network
 

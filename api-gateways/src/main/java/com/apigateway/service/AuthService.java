@@ -1,5 +1,6 @@
 package com.apigateway.service;
 
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -112,16 +113,23 @@ private final int password_expires_in=10;
                 User user = userRepository.findByUsername(userDetails.getUsername())
                         .orElseThrow(() -> new RuntimeException("User not found"));
                 LocalDateTime expireDate=user.getPasswordLastChangedAt().plusDays(password_expires_in);
-                LocalDateTime currentDate = LocalDateTime.now().toLocalDate().atStartOfDay();	
-                System.out.println("expire date"+expireDate);
-                System.out.println("current Date"+currentDate);
-                System.out.println("last Changed time"+user.getPasswordLastChangedAt());
-                if(expireDate.isBefore(currentDate)) {
-                	user.setPasswordExpired(true);
-                	userRepository.save(user);
-                	throw new RuntimeException("password_Expired");
-                }
-                
+//                LocalDateTime currentDate = LocalDateTime.now().toLocalDate().atStartOfDay();	
+//                System.out.println("expire date"+expireDate);
+//                System.out.println("current Date"+currentDate);
+//                System.out.println("last Changed time"+user.getPasswordLastChangedAt());
+//                if(expireDate.isBefore(currentDate)) {
+//                	user.setPasswordExpired(true);
+//                	userRepository.save(user);
+//                	throw new RuntimeException("password_Expired");
+//                }
+
+LocalDateTime now = LocalDateTime.now();
+
+if (now.isAfter(expireDate)) {
+    user.setPasswordExpired(true);
+    userRepository.save(user);
+    throw new CredentialsExpiredException("PASSWORD_EXPIRED");
+}
 //                user.setPasswordExpired(false);
 //                userRepository.save(user);
                 String role = auth.getAuthorities().stream()

@@ -48,7 +48,12 @@ public class AuthController {
 	                                    .status(HttpStatus.FORBIDDEN)
 	                                    .body(new MessageResponse("PASSWORD_EXPIRED"))
 	                    )
-	            );
+	                )
+	                .onErrorResume(ex -> Mono.just(
+	                    ResponseEntity
+	                            .status(HttpStatus.UNAUTHORIZED)
+	                            .body(new MessageResponse(ex.getMessage()))
+	                ));
 	}
 
 

@@ -85,7 +85,7 @@ public class BookingServiceImpl implements BookingService {
 		for (BookingEntity exis : existingdata) {
 			for (PassengerEntity passengersFromDb : exis.getPassengers()) {
 				for (Passengers passenger : data.getPassengers()) {
-					if (passengersFromDb.getSeatNo().equalsIgnoreCase(passenger.getSeatNo())) {
+					if (passengersFromDb.getSeatNo().equalsIgnoreCase(passenger.getSeatNo())&&exis.isStatus()) {
 						throw new BookingException("Seat " + passenger.getSeatNo() + " is alredy booked");
 					}
 				}
