@@ -112,8 +112,11 @@ private final int password_expires_in=10;
                 User user = userRepository.findByUsername(userDetails.getUsername())
                         .orElseThrow(() -> new RuntimeException("User not found"));
                 LocalDateTime expireDate=user.getPasswordLastChangedAt().plusDays(password_expires_in);
-	            	 
-                if(expireDate.isBefore(LocalDateTime.now())) {
+                LocalDateTime currentDate = LocalDateTime.now().toLocalDate().atStartOfDay();	
+                System.out.println("expire date"+expireDate);
+                System.out.println("current Date"+currentDate);
+                System.out.println("last Changed time"+user.getPasswordLastChangedAt());
+                if(expireDate.isBefore(currentDate)) {
                 	user.setPasswordExpired(true);
                 	userRepository.save(user);
                 	throw new RuntimeException("password_Expired");
