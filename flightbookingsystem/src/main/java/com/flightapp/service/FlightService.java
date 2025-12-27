@@ -1,6 +1,8 @@
 package com.flightapp.service;
 
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 
 import com.flightapp.dto.Flight;
@@ -12,4 +14,5 @@ public interface FlightService {
 	SearchResult search(Search data);
 	ResponseEntity<Flight> getById(Integer flightId);
 	void updateDetails(Integer flightId, Integer changeInSeats);
+	List<Flight> getAll();
 }

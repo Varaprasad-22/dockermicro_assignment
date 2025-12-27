@@ -5,6 +5,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.bookingapp.dto.BookingGetResponse;
+import com.bookingapp.dto.Passengers;
 
 @Service
 public class EmailService {
@@ -21,11 +22,22 @@ public class EmailService {
 	        message.setSubject("Booking Confirmation: " + booking.getPnr());
 
 	        String body = 
-	                "Hello User flightId is" + booking.getFlightId() + ",\n\n"
+	                "Dear Passenger"+"\n "
+	              +"Your flightId is " + booking.getFlightId() + ",\n\n"
 	              + "Your booking is confirmed!\n"
 	              + "Booking ID: " + booking.getPnr() + "\n"
-	              + "Passengers are: ₹" + booking.getPassengersList()+ "\n\n"
-	              + "Thank you for booking with us!"+booking;
+	              + "Passengers are: ₹" + "\n\n";
+	        String Passengers="";      
+	        for(Passengers passenger:booking.getPassengersList()) {
+	            	  Passengers+=
+	            			  "Name : "+ passenger.getName()
+	            			  +", Age : "+passenger.getAge()
+	            			  +", Gender : "+passenger.getGender()
+	            			  +", Meal Type : "+passenger.getMeal()
+	            			  +", Seat No : "+passenger.getSeatNo()+"\n";
+	              }
+	        body+=Passengers;
+	              body+= "Thank you for booking with us!";
 
 	        message.setText(body);
 
@@ -33,7 +45,7 @@ public class EmailService {
 	   }
 	    public void sendCancellationEmail(String email,String pnr) {
 
-	        String body ="Hello User Your Booking Cancelled No Refund Will be provided";
+	        String body ="Dear User, \n Your Booking has been Cancelled Succesfully \n No Refund Will be provided";
 
 	        SimpleMailMessage msg = new SimpleMailMessage();
 	        msg.setTo(email);

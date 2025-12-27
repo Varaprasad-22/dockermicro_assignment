@@ -3,9 +3,7 @@ package com.bookingapp.model;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.Email;
-import lombok.Data;
 
-@Data
 @Document(collection = "users")
 public class User {
 	@Id

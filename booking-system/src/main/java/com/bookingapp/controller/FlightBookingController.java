@@ -53,4 +53,10 @@ public class FlightBookingController {
 	public String cancelBooking(@Valid @PathVariable String pnr) {
 		return bookingService.cancelTicket(pnr);
 	}
+	
+	@GetMapping("/booking/{flightId}/bookingSeats")
+	public ResponseEntity<List<String>> getAllSeats(@PathVariable Integer flightId){
+		List<String> allSeats=bookingService.getAllSeats(flightId);
+				return ResponseEntity.ok(allSeats);
+	}
 }
