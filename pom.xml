@@ -20,7 +20,7 @@
             **/model/**,
             **/dto/**
         </sonar.exclusions>
- <sonar.skip>true</sonar.skip>
+
         <sonar.cpd.exclusions>
             **/exceptions/**,
             **/model/**,
