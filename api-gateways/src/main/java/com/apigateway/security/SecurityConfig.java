@@ -20,6 +20,9 @@ public class SecurityConfig {
 
 				.authorizeExchange(ex -> ex
             			.pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+//.pathMatchers("/api/auth/change-password").authenticated()
+
 					    .pathMatchers("/api/auth/**").permitAll()
 
 					    .pathMatchers("/api/flights/airline/inventory/**").hasRole("ADMIN")
@@ -35,8 +38,9 @@ public class SecurityConfig {
 					    .anyExchange().authenticated()
 					)
 
+				.addFilterBefore(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
 
-				.addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+//				.addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
 
 				.build();
 	}

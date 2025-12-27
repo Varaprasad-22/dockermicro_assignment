@@ -1,5 +1,7 @@
 package com.flightapp.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +37,12 @@ public class FlightController {
 	@PostMapping("/search")
 	public SearchResult searchFlights(@Valid @RequestBody Search data) {
 		return flightService.search(data);
+	}
+	
+	@GetMapping("/getAll")
+	public ResponseEntity<List<Flight>> getAllFlights(){
+		List<Flight> allFlights =flightService.getAll();
+		return ResponseEntity.ok(allFlights);
 	}
 	
 	@GetMapping("/{flightId}")

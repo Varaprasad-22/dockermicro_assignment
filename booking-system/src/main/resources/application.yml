@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: booking-service
+
+  profiles:
+    active: dev
+
+  config:
+    import: optional:configserver:http://config-server:8888
+
+  cloud:
+    config:
+      format: yaml
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: virupavaraprasad22@gmail.com
+    password: "vqaw fqfi axog xdee"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      BookingServiceCb:
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 2
+
+jwt:
+  secret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970secret123123"
+  expiration: 86400000

@@ -45,7 +45,7 @@ public class BookingServiceImpl implements BookingService {
 	@CircuitBreaker(name = "BookingServiceCb", fallbackMethod = "boooking")
 	public String bookFlight(Bookingdto data) {
 
-		if(data.getPassengers().size()!=data.getNoOfSeats()) {
+		if (data.getPassengers().size() != data.getNoOfSeats()) {
 			throw new BookingException("No Of Seats and tickets didn't match");
 		}
 		User user = getOrCreateUser(data.getEmailId(), data.getName());
@@ -59,7 +59,8 @@ public class BookingServiceImpl implements BookingService {
 		if (outboundFlight.getTotalSeats() < data.getNoOfSeats()) {
 			throw new BookingException("Not enough seats in outbound flight.");
 		}
-		if(LocalDateTime.now().isAfter(outboundFlight.getDepatureTime())||LocalDateTime.now().isEqual(outboundFlight.getDepatureTime())) {
+		if (LocalDateTime.now().isAfter(outboundFlight.getDepatureTime())
+				|| LocalDateTime.now().isEqual(outboundFlight.getDepatureTime())) {
 			throw new BookingException("Flight Already Depatured");
 		}
 		BookingEntity bookingEntity = new BookingEntity();
@@ -69,7 +70,7 @@ public class BookingServiceImpl implements BookingService {
 		bookingEntity.setNoOfSeats(data.getNoOfSeats());
 		bookingEntity.setStatus(true);
 		bookingEntity.setBookingTime(LocalDateTime.now());
-		String pnr=(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+		String pnr = (UUID.randomUUID().toString().substring(0, 8).toUpperCase());
 		bookingEntity.setPnr(pnr);
 		data.getPassengers().forEach(passengerRequest -> {
 			PassengerEntity passengerEntity = new PassengerEntity();
@@ -80,12 +81,12 @@ public class BookingServiceImpl implements BookingService {
 			passengerEntity.setSeatNo(passengerRequest.getSeatNo());
 			bookingEntity.addPassenger(passengerEntity);
 		});
-		List<BookingEntity> existingdata=bookingRepository.findAllByFlightId(data.getOutboundFlightId());
-		for(BookingEntity exis:existingdata) {
-			for(PassengerEntity passengersFromDb:exis.getPassengers()) {
-				for(Passengers passenger:data.getPassengers()) {
-					if(passengersFromDb.getSeatNo().equalsIgnoreCase(passenger.getSeatNo())) {
-						throw new BookingException("Seat "+ passenger.getSeatNo()+" is alredy booked");
+		List<BookingEntity> existingdata = bookingRepository.findAllByFlightId(data.getOutboundFlightId());
+		for (BookingEntity exis : existingdata) {
+			for (PassengerEntity passengersFromDb : exis.getPassengers()) {
+				for (Passengers passenger : data.getPassengers()) {
+					if (passengersFromDb.getSeatNo().equalsIgnoreCase(passenger.getSeatNo())&&exis.isStatus()) {
+						throw new BookingException("Seat " + passenger.getSeatNo() + " is alredy booked");
 					}
 				}
 			}
@@ -111,17 +112,17 @@ public class BookingServiceImpl implements BookingService {
 
 			return "Round-trip Booking Successful! PNR: " + bookingEntity.getPnr();
 		}
-		
+
 		bookingRepository.save(bookingEntity);
-		BookingGetResponse datarabbitMq=getBookingDetails(pnr);
+		BookingGetResponse datarabbitMq = getBookingDetails(pnr);
 		producer.sendBookingMessage(datarabbitMq);
 
 		return "One-way Booking Successful! PNR: " + bookingEntity.getPnr();
 	}
 
 	public ResponseEntity<String> boooking(Bookingdto data, Throwable ex) {
-		
-		return ResponseEntity.status(503).body("Booking Service is DOWN. Try again later."+data+ex.getMessage());
+
+		return ResponseEntity.status(503).body("Booking Service is DOWN. Try again later." + data + ex.getMessage());
 	}
 
 	private User getOrCreateUser(String email, String name) {
@@ -159,7 +160,7 @@ public class BookingServiceImpl implements BookingService {
 			passengerDto.setSeatNo(entity.getSeatNo());
 			return passengerDto;
 		}).toList();
-response.setEmail(bookingEntity.getEmailId());
+		response.setEmail(bookingEntity.getEmailId());
 		response.setPassengersList(passengersList);
 		return response;
 	}
@@ -167,7 +168,7 @@ response.setEmail(bookingEntity.getEmailId());
 	public BookingGetResponse byPnr(String pnr, Throwable ex) {
 		BookingGetResponse response = new BookingGetResponse();
 		response.setPnr(pnr);
-		response.setMessage("failed to Send Request Server Down"+ex.getMessage());
+		response.setMessage("failed to Send Request Server Down" + ex.getMessage());
 		response.setFlightId(null);
 		return response;
 	}
@@ -175,14 +176,15 @@ response.setEmail(bookingEntity.getEmailId());
 	@Override
 //	@CircuitBreaker(name = "BookingServiceCb", fallbackMethod = "cancleTicketCb")
 	public String cancelTicket(String pnr) {
-		BookingEntity bookingOpt = bookingRepository.findByPnr(pnr).orElseThrow(()-> new ResourceNotFoundException("Cancellation Failed: PNR not found."));
+		BookingEntity bookingOpt = bookingRepository.findByPnr(pnr)
+				.orElseThrow(() -> new ResourceNotFoundException("Cancellation Failed: PNR not found."));
 
 		BookingEntity bookingEntity = bookingOpt;
 		FlightDto flightDetails = flightserviceclient.getFlightDetails(bookingEntity.getFlightId())
 				.orElseThrow(() -> new ResourceNotFoundException("Flight not found"));
 		LocalDateTime departureTime = flightDetails.getDepatureTime();
 		long hoursRemaining = Duration.between(LocalDateTime.now(), departureTime).toHours();
-		if(!bookingEntity.isStatus()) {
+		if (!bookingEntity.isStatus()) {
 			throw new BookingException("Failed Since Flight booking already cancled");
 		}
 		if (hoursRemaining < 24) {
@@ -192,13 +194,13 @@ response.setEmail(bookingEntity.getEmailId());
 		flightserviceclient.updateSeats(bookingEntity.getFlightId(), bookingEntity.getNoOfSeats());
 		bookingEntity.setStatus(false);
 		bookingRepository.save(bookingEntity);
-		BookingGetResponse datarabbitMq=getBookingDetails(pnr);
-		 producer.sendCancellationMessage(datarabbitMq);
+		BookingGetResponse datarabbitMq = getBookingDetails(pnr);
+		producer.sendCancellationMessage(datarabbitMq);
 		return "Ticket with PNR " + pnr + " successfully cancelled.";
 	}
 
 	public String cancleTicketCb(String pnr, Throwable ex) {
-		return "The server is Down"+pnr+ex.getMessage();
+		return "The server is Down" + pnr + ex.getMessage();
 	}
 
 	@Override
@@ -250,9 +252,21 @@ response.setEmail(bookingEntity.getEmailId());
 	public List<BookingGetResponse> byEmail(String email, Throwable ex) {
 		BookingGetResponse forCb = new BookingGetResponse();
 		forCb.setEmail(email);
-		forCb.setName("The Server is Down Failed to Load"+ex.getMessage());
+		forCb.setName("The Server is Down Failed to Load" + ex.getMessage());
 
 		return List.of(forCb);
 	}
 
+	public List<String> getAllSeats(Integer flightId) {
+		List<BookingEntity> bookings = bookingRepository.findAllByFlightId(flightId);
+		List<String> allSeats = new ArrayList<>();
+		for (BookingEntity book : bookings) {
+			if (book.isStatus()) {
+				for (PassengerEntity passenger : book.getPassengers()) {
+					allSeats.add(passenger.getSeatNo());
+				}
+			}
+		}
+		return allSeats;
+	}
 }

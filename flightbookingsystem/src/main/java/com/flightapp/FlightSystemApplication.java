@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableJpaAuditing
+//@EnableJpaAuditing
 public class FlightSystemApplication {
 
 	public static void main(String []args) {
